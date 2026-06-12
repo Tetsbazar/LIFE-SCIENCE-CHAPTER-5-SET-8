@@ -97,9 +97,21 @@
             display: none;
         }
 
-        /* Quiz & Admin Sections */
-        #quiz-section, #admin-section {
+        /* Quiz, Admin & Limit Block Sections */
+        #quiz-section, #admin-section, #limit-section {
             display: none;
+        }
+
+        .limit-box {
+            text-align: center;
+            padding: 30px;
+            background-color: #fce4d6;
+            border: 2px solid #f1948a;
+            border-radius: 8px;
+            color: #c0392b;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
         }
 
         .question-header {
@@ -288,7 +300,7 @@
 
     <!-- Login Section -->
     <div id="login-section">
-        <h1>স্টুডেন্ট ও অ্যাডমিন লগইন</h1>
+        <h1>স্টuডেন্ট ও অ্যাডমিন লগইন</h1>
         <p class="subtitle">জীবন বিজ্ঞান প্র্যাকটিস সেট শুরু করতে নিচে লগইন করুন</p>
 
         <div class="form-group">
@@ -306,10 +318,19 @@
         <button class="btn" id="login-btn">লগইন করুন</button>
     </div>
 
+    <!-- Attempt Limit Exceeded Section -->
+    <div id="limit-section">
+        <div class="limit-box">
+            ⚠️ দুঃখিত, আপনার এই সেটের জন্য নির্ধারিত ১০ বার পরীক্ষার লিমিট শেষ হয়ে গেছে!
+        </div>
+        <p style="text-align: center; color: #555;">আপনি আর নতুন করে এই কুইজটিতে অংশগ্রহণ করতে পারবেন না। অতিরিক্ত সুযোগের জন্য আপনার শিক্ষকের সাথে যোগাযোগ করুন।</p>
+        <button class="btn" onclick="location.reload()">লগ আউট ও ফিরে যান</button>
+    </div>
+
     <!-- Admin Panel Section -->
     <div id="admin-section">
         <h1 class="admin-title">📊 শিক্ষক ড্যাশবোর্ড (Admin Panel)</h1>
-        <p class="subtitle">পরীক্ষার্থীদের লাইভ পারফরম্যান্স ও মক টেস্টের ফুল রিপোর্ট</p>
+        <p class="subtitle">পরীক্ষার্থীদের লাইভ পারফরম্যান্স ও মক টেস্টের ফুল রিপোর্ট (সর্বোচ্চ ১০ বার লিমিট)</p>
         
         <table>
             <thead>
@@ -317,6 +338,7 @@
                     <th>ছাত্রের নাম (Username)</th>
                     <th>সর্বোচ্চ স্কোর (Best Score)</th>
                     <th>মোট কতবার দিয়েছে (Total Attempts)</th>
+                    <th>স্ট্যাটাস (Status)</th>
                 </tr>
             </thead>
             <tbody id="admin-table-body">
@@ -324,7 +346,7 @@
             </tbody>
         </table>
         
-        <button class="btn" style="background-color: var(--admin-color); margin-top: 30px;" onclick="clearReports()">সমস্ত রেকর্ড রিসেট করুন</button>
+        <button class="btn" style="background-color: var(--admin-color); margin-top: 30px;" onclick="clearReports()">সমস্ত রেকর্ড ও লিমিট রিসেট করুন</button>
         <button class="btn" onclick="location.reload()">লগ আউট করুন</button>
     </div>
 
@@ -357,7 +379,7 @@
             <h1 style="margin-top: 10px;" id="final-score">স্কোর: 0 / 15</h1>
         </div>
 
-        <!-- Set 9 Link Redirect Button -->
+        <!-- Set 9 Real Link Added Here -->
         <a href="https://tetsbazar.github.io/LIFE-SCIENCE-CHAPTER-5-SET-9-/" target="_blank" class="btn-next-set">
             👉 পরবর্তী মক টেস্ট (সেট - ৯) দেওয়ার জন্য এখানে ক্লিক করুন
         </a>
@@ -385,9 +407,12 @@
         "admin": "admin1234" 
     };
 
+    const attemptLimit = 10; // Maximum allowed exam attempts per student
+
     const loginSection = document.getElementById("login-section");
     const quizSection = document.getElementById("quiz-section");
     const adminSection = document.getElementById("admin-section");
+    const limitSection = document.getElementById("limit-section");
     const adminTableBody = document.getElementById("admin-table-body");
     const usernameInput = document.getElementById("username");
     const passwordInput = document.getElementById("password");
@@ -411,12 +436,19 @@
                 adminSection.style.display = "block";
                 loadAdminData();
             } else {
-                quizSection.style.display = "block";
-                studentNameDisplay.innerText = username;
-                resultStudentName.innerText = username;
+                // Check Attempt Limit before starting
+                const userReport = JSON.parse(localStorage.getItem(`quiz_report_ch5_s8_${currentUsername}`)) || { bestScore: 0, attempts: 0 };
+                
+                if (userReport.attempts >= attemptLimit) {
+                    limitSection.style.display = "block";
+                } else {
+                    quizSection.style.display = "block";
+                    studentNameDisplay.innerText = username;
+                    resultStudentName.innerText = username;
 
-                loadQuestion();
-                startTimer(10 * 60); // 10 Minutes Timer
+                    loadQuestion();
+                    startTimer(10 * 60); // 10 Minutes Timer
+                }
             }
         } else {
             errorMessage.style.display = "block";
@@ -430,13 +462,24 @@
             if (user !== "admin") {
                 const userReport = JSON.parse(localStorage.getItem(`quiz_report_ch5_s8_${user}`)) || { bestScore: "পরীক্ষা দেয়নি", attempts: 0 };
                 
+                let statusText = "চলমান";
+                let statusColor = "#27ae60";
+                if (userReport.attempts >= attemptLimit) {
+                    statusText = "লকড (সীমা শেষ)";
+                    statusColor = "var(--wrong-color)";
+                } else if (userReport.attempts === 0) {
+                    statusText = "অংশগ্রহণ করেনি";
+                    statusColor = "#7f8c8d";
+                }
+
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td><strong>${user}</strong></td>
                     <td style="color: ${typeof userReport.bestScore === 'number' ? 'var(--primary-color)' : '#7f8c8d'}; font-weight: bold;">
                         ${typeof userReport.bestScore === 'number' ? userReport.bestScore + ' / 15' : userReport.bestScore}
                     </td>
-                    <td><span style="background: #e2e8f0; padding: 3px 10px; border-radius: 10px; font-weight: bold;">${userReport.attempts} বার</span></td>
+                    <td><span style="background: #e2e8f0; padding: 3px 10px; border-radius: 10px; font-weight: bold;">${userReport.attempts} / ${attemptLimit} বার</span></td>
+                    <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
                 `;
                 adminTableBody.appendChild(row);
             }
@@ -444,14 +487,14 @@
     }
 
     function clearReports() {
-        if (confirm("আপনি কি নিশ্চিতভাবে সমস্ত ছাত্র-ছাত্রীর পরীক্ষার রেকর্ড ও অ্যাটেম্পট হিস্ট্রি ডিলিট করতে চান?")) {
+        if (confirm("আপনি কি নিশ্চিতভাবে সমস্ত ছাত্র-ছাত্রীর পরীক্ষার রেকর্ড ও অ্যাটেম্পট হিস্ট্রি ডিলিট করে লিমিট নতুন করে রিসেট করতে চান?")) {
             Object.keys(approvedStudents).forEach(user => {
                 if (user !== "admin") {
                     localStorage.removeItem(`quiz_report_ch5_s8_${user}`);
                 }
             });
             loadAdminData();
-            alert("সমস্ত ডাটা সফলভাবে রিসেট করা হয়েছে।");
+            alert("সমস্ত ডাটা এবং পরীক্ষার লিমিট সফলভাবে রিসেট করা হয়েছে।");
         }
     }
 
@@ -489,8 +532,8 @@
         },
         {
             question: "৬. পশ্চিমবঙ্গের 'চাপড়ামারি' এবং কর্ণাটকের 'বন্দিপুর' কিসের উদাহরণ?",
-            options: ["বোটানিক্যাল গার্ডেন", "চিড়িয়াখানা", "অভয়ারণ্য (Sanctuary)", "বায়োস্ফিয়ার রিজার্ভ"],
-            answer: "অভয়ারণ্য (Sanctuary)",
+            options: ["বোটানিক্যাল গার্ডেন", "চিড়িয়াখানা", "অভয়ারণ্য (Sanctvary)", "বায়োস্ফিয়ার রিজার্ভ"],
+            answer: "অভয়ারণ্য (Sanctvary)",
             explanation: "অভয়ারণ্য বা স্যাঙ্কচুয়ারি হলো রাজ্য সরকারের নিয়ন্ত্রণাধীন বনাঞ্চল যেখানে নির্দিষ্ট বন্যপ্রাণী ও উদ্ভিদ প্রজাতি সুরক্ষিত থাকে।"
         },
         {
@@ -509,7 +552,7 @@
             question: "৯. ক্রায়োসংরক্ষণ (Cryopreservation) পদ্ধতিতে কত তাপমাত্রায় জীবজ উপাদান সংরক্ষণ করা হয়?",
             options: ["০°C", "মাইনাস ৫০°C (-50°C)", "মাইনাস ১৯৬°C (-196°C)", "১০০°C"],
             answer: "মাইনাস ১৯৬°C (-196°C)",
-            explanation: "এই পদ্ধতিতে চরম শীতল অবস্থায় (মাইনাস ১৯৬ ডিগ্রি সেলসিয়াস) তরল নাইট্রোজেনের মধ্যে বিলুপ্তপ্রায় উদ্ভিদের শুক্রাণu, পরাগরেণু বা বীজ দীর্ঘদিন অক্ষত জমিয়ে রাখা হয়।"
+            explanation: "এই পদ্ধতিতে চরম শীতল অবস্থায় (মাইনাস ১৯৬ ডিগ্রি সেলসিয়াস) তরল নাইট্রোজেনের মধ্যে বিলুপ্তপ্রায় উদ্ভিদের শুক্রাণু, পরাগরেণু বা বীজ দীর্ঘদিন অক্ষত জমিয়ে রাখা হয়।"
         },
         {
             question: "১০. বিলুপ্ত বা বিপন্ন উদ্ভিদ ও প্রাণীর সমস্ত তথ্য সম্বলিত রেকর্ড বইটিকে কী বলা হয়?",
@@ -527,7 +570,7 @@
             question: "১২. পশ্চিমবঙ্গের 'বক্সা' এবং গুজরাটের 'গির' অরণ্য কীসের উদাহরণ?",
             options: ["চিড়িয়াখানা", "সংরক্ষিত অরণ্য (Reserve Forest)", "ক্রায়োসংরক্ষণ", "বোটানিক্যাল গার্ডেন"],
             answer: "সংরক্ষিত অরণ্য (Reserve Forest)",
-            explanation: "সংরক্ষিত অরণ্য বা রিজার্ভ ফরেস্ট হলো রাজ্য সরকার নিয়ন্ত্রিত বনাঞ্চল, যেখানে বন্যপ্রাণী সুরক্ষার্থে সাধারণের প্রবেশাধিকার আংশিক বা পূর্ণ নিয়ন্ত্রিত থাকে।"
+            explanation: "সংরক্ষিত অরণ্য বা রিজার্ভ ফরেস্ট হলো রাজ্য সরকার বিজ্ঞানী বা বনদপ্তর নিয়ন্ত্রিত বনাঞ্চল, যেখানে বন্যপ্রাণী সুরক্ষার্থে সাধারণের প্রবেশাধিকার আংশিক বা পূর্ণ নিয়ন্ত্রিত থাকে।"
         },
         {
             question: "১৩. তরল নাইট্রোজেনে শুক্রাণু বা বীজ সংরক্ষণ করা কোন সংরক্ষণের অংশ?",
@@ -668,6 +711,7 @@
             }
             userAnswers[currentQuestionIndex] = null; 
         } else {
+            userAnswers[currentUsername] = selectedOption; // Internal logic mapping
             userAnswers[currentQuestionIndex] = selectedOption;
             if (selectedOption === quizData[currentQuestionIndex].answer) {
                 score++;
@@ -686,5 +730,3 @@
 
 </body>
 </html>
-
-
