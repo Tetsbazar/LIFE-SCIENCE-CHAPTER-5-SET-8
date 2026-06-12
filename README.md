@@ -183,6 +183,13 @@
             text-decoration: none;
             display: block;
             box-sizing: border-box;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
         }
 
         .btn-next-set:hover {
@@ -279,6 +286,7 @@
 
 <div class="container">
 
+    <!-- Login Section -->
     <div id="login-section">
         <h1>স্টুডেন্ট ও অ্যাডমিন লগইন</h1>
         <p class="subtitle">জীবন বিজ্ঞান প্র্যাকটিস সেট শুরু করতে নিচে লগইন করুন</p>
@@ -298,6 +306,7 @@
         <button class="btn" id="login-btn">লগইন করুন</button>
     </div>
 
+    <!-- Admin Panel Section -->
     <div id="admin-section">
         <h1 class="admin-title">📊 শিক্ষক ড্যাশবোর্ড (Admin Panel)</h1>
         <p class="subtitle">পরীক্ষার্থীদের লাইভ পারফরম্যান্স ও মক টেস্টের ফুল রিপোর্ট</p>
@@ -311,13 +320,15 @@
                 </tr>
             </thead>
             <tbody id="admin-table-body">
-                </tbody>
+                <!-- Data injected via JS -->
+            </tbody>
         </table>
         
         <button class="btn" style="background-color: var(--admin-color); margin-top: 30px;" onclick="clearReports()">সমস্ত রেকর্ড রিসেট করুন</button>
         <button class="btn" onclick="location.reload()">লগ আউট করুন</button>
     </div>
 
+    <!-- Quiz Section -->
     <div id="quiz-section">
         <h1>জীবন বিজ্ঞান কুইজ: অধ্যায় ৫</h1>
         <div class="subtitle">
@@ -333,24 +344,28 @@
 
         <div class="question-text" id="question-text">এখানে প্রশ্ন আসবে</div>
         <ul class="options-list" id="options-list">
-            </ul>
+            <!-- Options via JS -->
+        </ul>
 
         <button class="btn" id="next-btn">পরবর্তী প্রশ্ন</button>
     </div>
 
+    <!-- Result Section -->
     <div id="result-section">
         <div class="score-board">
             <h2>পরীক্ষা সম্পন্ন হয়েছে, <span id="result-student-name"></span>!</h2>
             <h1 style="margin-top: 10px;" id="final-score">স্কোর: 0 / 15</h1>
         </div>
 
-        <a href="https://tetsbazar.github.io/LIFE-SCIENCE-CHAPTER-5-SET-9-/" target="_blank" class="btn btn-next-set">
+        <!-- Set 9 Link Redirect Button -->
+        <a href="https://tetsbazar.github.io/LIFE-SCIENCE-CHAPTER-5-SET-9-/" target="_blank" class="btn-next-set">
             👉 পরবর্তী মক টেস্ট (সেট - ৯) দেওয়ার জন্য এখানে ক্লিক করুন
         </a>
 
         <h3 style="margin-top: 30px;">প্রশ্নের বিস্তারিত পর্যালোচনা:</h3>
         <div id="review-container">
-            </div>
+            <!-- Review items via JS -->
+        </div>
         <button class="btn" onclick="location.reload()">লগ আউট করুন</button>
     </div>
 
@@ -494,11 +509,11 @@
             question: "৯. ক্রায়োসংরক্ষণ (Cryopreservation) পদ্ধতিতে কত তাপমাত্রায় জীবজ উপাদান সংরক্ষণ করা হয়?",
             options: ["০°C", "মাইনাস ৫০°C (-50°C)", "মাইনাস ১৯৬°C (-196°C)", "১০০°C"],
             answer: "মাইনাস ১৯৬°C (-196°C)",
-            explanation: "এই পদ্ধতিতে চরম শীতল অবস্থায় (মাইনাস ১৯৬ ডিগ্রি সেলসিয়াস) তরল নাইট্রোজেনের মধ্যে বিলুপ্তপ্রায় উদ্ভিদের শুক্রাণু, পরাগরেণু বা বীজ দীর্ঘদিন অক্ষত জমিয়ে রাখা হয়।"
+            explanation: "এই পদ্ধতিতে চরম শীতল অবস্থায় (মাইনাস ১৯৬ ডিগ্রি সেলসিয়াস) তরল নাইট্রোজেনের মধ্যে বিলুপ্তপ্রায় উদ্ভিদের শুক্রাণu, পরাগরেণু বা বীজ দীর্ঘদিন অক্ষত জমিয়ে রাখা হয়।"
         },
         {
             question: "১০. বিলুপ্ত বা বিপন্ন উদ্ভিদ ও প্রাণীর সমস্ত তথ্য সম্বলিত রেকর্ড বইটিকে কী বলা হয়?",
-            options: ["গ্রিন ডাটা বুক", "블루 ডাটা বুক", "রেড ডাটা বুক (Red Data Book)", "হোয়াইট ডাটা বুক"],
+            options: ["গ্রিন ডাটা বুক", "ব্লু ডাটা বুক", "রেড ডাটা বুক (Red Data Book)", "হোয়াইট ডাটা বুক"],
             answer: "রেড ডাটা বুক (Red Data Book)",
             explanation: "১৯৬৩ সালে IUCN (ইন্টারন্যাশনাল ইউনিয়ন ফর কনজারভেশন অব নেচার) নামক বিশ্বসংস্থা বিলুপ্তপ্রায় জীবের তথ্য সম্বলিত এই রেড ডাটা বুক প্রথম প্রকাশ করে।"
         },
